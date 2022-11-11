@@ -42,4 +42,7 @@ class MyApp extends StatelessWidget {
 /**
  * Steps to add a navigation
  * 1 - Seperate your files into scaffold widgets
+ * 2 - add routes to main scaffold
+ * 3 - use navigator.pushNamed to push to another page and args to pass data around
+ * 4 - use ModalRoute.sett.args extract the data and use it
  * */ 
