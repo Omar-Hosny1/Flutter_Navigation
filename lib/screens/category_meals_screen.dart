@@ -1,44 +1,74 @@
 import 'package:flutter/material.dart';
 
-import '../data/dummy_data.dart';
 import '../widgets/meal_item.dart';
+import '../models/meal.dart';
 
-class CategoryMealsScreen extends StatelessWidget {
+class CategoryMealsScreen extends StatefulWidget {
   static const routeName = "'/category-meals'";
-  // final String categoryId;
-  // final String categoryTitle;
-
-  // const CategoryMealsScreen(
-  //   this.categoryId,
-  //   this.categoryTitle,
-  // );
+  final List<Meal> avaliableMeals;
+  CategoryMealsScreen(this.avaliableMeals);
 
   @override
-  Widget build(BuildContext context) {
+  State<CategoryMealsScreen> createState() => _CategoryMealsScreenState();
+}
+
+class _CategoryMealsScreenState extends State<CategoryMealsScreen> {
+  String categoryTitle;
+  List<Meal> displayedMeals;
+  bool _loadInitDate = false;
+  @override
+  void initState() {
+    // in init state you cant recieve the context object because the widget still dont added to the widgets tree
+    // it runs before build runs
+
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    /*
+      whenever the references of the state change, which also means it will be called when  
+      the widget that belongs to the state has been fully initialized 
+      and we can tap into context,this will still run before build runs 
+    */
+    if (_loadInitDate) return;
     final routeArgs =
         ModalRoute.of(context).settings.arguments as Map<String, String>;
-    final categoryTitle = routeArgs['title'];
+    categoryTitle = routeArgs['title'];
     final categoryId = routeArgs['id'];
-    final categoryMeals = DUMMY_MEALS.where(
+    displayedMeals = widget.avaliableMeals.where(
       (meal) {
         return meal.categories.contains(categoryId);
       },
     ).toList();
+    _loadInitDate = true;
+    super.didChangeDependencies();
+  }
 
+  void removeMeal(String mealId) {
+    setState(() {
+      displayedMeals.removeWhere((meal) => meal.id == mealId);
+    });
+  }
+
+  // final String categoryId;
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(categoryTitle)),
       body: ListView.builder(
         itemBuilder: ((context, index) {
           return MealItem(
-            id: categoryMeals[index].id,
-            title: categoryMeals[index].title,
-            imageUrl: categoryMeals[index].imageUrl,
-            affordability: categoryMeals[index].affordability,
-            complexity: categoryMeals[index].complexity,
-            duration: categoryMeals[index].duration,
+            id: displayedMeals[index].id,
+            title: displayedMeals[index].title,
+            imageUrl: displayedMeals[index].imageUrl,
+            affordability: displayedMeals[index].affordability,
+            complexity: displayedMeals[index].complexity,
+            duration: displayedMeals[index].duration,
+            // removeItem: removeMeal,
           );
         }),
-        itemCount: categoryMeals.length,
+        itemCount: displayedMeals.length,
       ),
     );
   }
